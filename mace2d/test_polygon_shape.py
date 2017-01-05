@@ -54,21 +54,22 @@ class Polygon:
                 along_factor = dot(beam,support)
         return support + self.position
     
-    def draw(self,canvas,color):
+    def draw(self,canvas,color,outline = ""):
         drawing_points = []
         for point in self.points:
             drawing_points.append(list(point + self.position))
             
             
         if len(drawing_points) > 2:
-            canvas.create_polygon(drawing_points,fill = color)
+            canvas.create_polygon(drawing_points,fill = color, outline = outline)
         elif len(drawing_points) == 2:
-            canvas.create_line(drawing_points, fill =color)
+            canvas.create_line(drawing_points, fill =color+outline)
         else:
             canvas.create_oval(
                 drawing_points[0][0] -3,
                 drawing_points[0][1] -3,
                 drawing_points[0][0] +3,
                 drawing_points[0][1] +3,
-                fill =color
+                fill =color,
+                outline = outline
             )

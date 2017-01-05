@@ -42,8 +42,6 @@ def draw():
     poly2.draw(canvas,color)
 
     
-    
-    
 root = tk.Tk()
 canvas = tk.Canvas(root, width = 800, height = 800)
 canvas.pack()
