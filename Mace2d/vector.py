@@ -146,6 +146,7 @@ class Vector:
         return along(self, right_perp(other))
     
     def alongness(self,other):
+        if other != Vector(0,0)
         return dot(self,other) / sqr_norm(other) 
     
     def againstness(self,other):
