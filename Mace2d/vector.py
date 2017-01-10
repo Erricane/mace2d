@@ -32,6 +32,8 @@ class Vector:
             )
         except TypeError:
             return False
+            
+
         
     # equals (A != B)
     def __ne__(self,other):
@@ -204,7 +206,16 @@ def against(vector1,vector2):
 def againstness(vector1,vector2):
     return vector1.againstness(vector2)
     
-
+def abs_equal(vector1,vector2):
+    return vector1.x == vector2.x and vector1.y == vector2.y
+    
+def decrease(vector, value):
+    if value*value > sqr_norm(vector) :
+        return Vector(0,0)
+    vector_norm = norm(vector)
+    return (vector_norm - value) / vector_norm * vector
+    
+    
 
 
 import unittest      

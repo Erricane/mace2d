@@ -2,9 +2,13 @@ import tkinter as tk
 from test_polygon_shape import *
 from gjk import *
 from conservative_advancement import *
+import random as rd
+import numpy as np
+
 
 def reset(event = None):
     global canvas, root, poly1, poly2, target
+
     poly1 = generate_polygon()
     poly2 = generate_polygon()
     target = Vector(400,400)
@@ -45,7 +49,9 @@ def draw():
         
     poly1.position = position1
         
-    
+
+rd.seed(1)
+np.random.seed(1)
 root = tk.Tk()
 canvas = tk.Canvas(root, width = 800, height = 800)
 canvas.pack()

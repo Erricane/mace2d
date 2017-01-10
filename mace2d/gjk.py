@@ -18,80 +18,79 @@ def vector_to_origin(simplex):
     
 
 def simplex_process(simplex):
-    
+    # CCW means counter-clockwise
 
-    
-    #simplex is a clockwise-order triangle 
+    #simplex is a CCW order triangle 
     if len(simplex) == 3:
         
-        #from 2 to 0, leftmost vector
-        left_direction20 = simplex[0] - simplex[2]  
+        #from 2 to 0, rightmost vector
+        right_direction20 = simplex[0] - simplex[2]  
         
-        #from 2 to 1, rightmost vector
-        right_direction21 = simplex[1] - simplex[2] 
+        #from 2 to 1, leftmost vector
+        left_direction21 = simplex[1] - simplex[2] 
 
         #from newest point to origin
-        to_origin = -simplex[2]                      
+        to_origin = -simplex[2]               
         
-        if leftof(to_origin, left_direction20) :    #origin is left of left_direction20, not in simplex           
-            if along(to_origin, left_direction20):   
-                simplex = [simplex[0], simplex[2]]  #left_direction20 is new simplex, CW order
-                return simplex,left_perp(left_direction20),False
-            else:                                       
-                simplex = [simplex[2]]              
-                return simplex,to_origin,False
         
-        else:
-            if rightof(to_origin, right_direction21):   #origin is right of right_direction21, not in simplex
-                if along(right_direction21,to_origin):  
-                    simplex = [simplex[2], simplex[1]]  #right_direction21 is new simplex, CW order
-                    return simplex,right_perp(right_direction21),False
-                else:                                   #origin against direction of right_direction21
-                    simplex = [simplex[2]]
-                    return simplex,to_origin,False
-        
-            else:
+        if leftof(to_origin, right_direction20): #right segment is not closest
+            if rightof(to_origin, left_direction21): #origin in triangle
                 return simplex,None,True
+            if along(to_origin, left_direction21): #left segment is closest 
+                simplex = [simplex[2], simplex[1]]  #left_direction21 is new simplex, CCW order
+                return simplex,left_perp(left_direction21),False
+        else:
+            if along(to_origin, right_direction20): #right segment is closest
+                simplex = [simplex[0], simplex[2]]  #right_direction21 is new simplex, CCW order
+                return simplex,right_perp(right_direction20),False
+            if along(to_origin, left_direction21): #left segment is closest 
+                simplex = [simplex[2], simplex[1]]  #left_direction21 is new simplex, CCW order
+                return simplex,left_perp(left_direction21),False
+        simplex = [simplex[2]]                      #origin is closest to new point   
+        return simplex,to_origin,False
+
 
     #simplex is line
     if len(simplex) == 2:
         direction10 = simplex[0] -simplex[1]
         to_origin = -simplex[1]
         
-        if against(to_origin, direction10):    
-            simplex = [simplex[1]]
-            return simplex, to_origin, False
+        #NOTE: Simplex must be in CCW order when new point is added
+        if along(to_origin, direction10):
+        
+            if leftof(to_origin, direction10):      
+                simplex = [simplex[1], simplex[0]] #simplex is CCW order 
+                return simplex, left_perp(direction10), False
             
-        else:  
-            #NOTE: Simplex must be in clockwise order when new point is added
-            
-            if rightof(to_origin, direction10):      
-                simplex = [simplex[1], simplex[0]] #simplex is CW order 
-                return simplex, right_perp(direction10), False
-                
-            else:
-                #simplex already in CW order
-                 return simplex, left_perp(direction10), False
-    
+            #origin right of segment, simplex already in CCW order
+            return simplex, right_perp(direction10), False
+        
+        #newest point is closest to origin
+        simplex = [simplex[1]]
+        return simplex, to_origin, False
+             
     #simplex is a point
     if len(simplex) == 1:
         return simplex, -simplex[0], False
         
-    raise ValueError("Simplex is too large")
+    raise ValueError("Simplex is too large") 
+    
 
-def simplex_contains(simplex,support):
-    for vec in simplex:
-        if vec == support:
-            return true
-        else:
-            return false
+def simplex_contain(simplex,support):
+    for vector in simplex:
+        if vector == support:
+            return True
+    return False
+
 
 def gjk(shape1, shape2):
     beam = Vector(1,0)
+    
     #support means the furthest point in a (combined) shape in the beam direction
     support = shape1.get_support(beam) - shape2.get_support(-beam)
     
     simplex = [support]
+    
     beam = -support
     iterations = 0
     
@@ -100,7 +99,7 @@ def gjk(shape1, shape2):
         support = shape1.get_support(beam) - shape2.get_support(-beam)
         
         #there is no closer point (from combined shape to the origin)
-        if old_support == support: 
+        if simplex_contain(simplex, support): 
             return vector_to_origin(simplex), simplex, iterations
     
         #else expand simplex with support
@@ -111,7 +110,9 @@ def gjk(shape1, shape2):
         iterations += 1
         
         if contains_origin:
-            return None, simplex, iterations
+            return Vector(0,0), simplex, iterations
         
+        if iterations > 100:
+            raise ValueError(str(simplex) + "\n" + str(old_support) + "\n" + str(support))
         
 

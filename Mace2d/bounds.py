@@ -57,6 +57,9 @@ class Bounds:
             self.dimension + 2 * Vector(padding, padding)
         )
     
+    def offset(self, vector):
+        self.origin += vector
+    
     def width(self):
         return self.dimension.x
         
@@ -69,19 +72,26 @@ class Bounds:
     def right(self):
         return self.left() + self.width()
 
-    def top(self):
+    def bottom(self):
         return self.origin.y
         
-    def bottom(self):
-        return self.top() + self.height()
+    def top(self):
+        return self.bottom() + self.height()
+        
+    def offset(self, vector):
+        return Bounds(
+            self.origin + vector,
+            self.dimension
+        )
         
     def intersects(self,other):
         return(
-            self.top() <= other.bottom() and
-            self.bottom() >= other.top() and
+            self.top() >= other.bottom() and
+            self.bottom() <= other.top() and
             self.left() <= other.right() and
             self.right() >= other.left()
         )
+        
 
 class Bounds_Test(unittest.TestCase):
     
@@ -112,14 +122,14 @@ class Bounds_Test(unittest.TestCase):
         self.reset()
         
         #no sweep
-        self.assertEquals(b0.sweep((0,0)), Bounds((-1.2,-1.25),(2.6,2.5)))
+        self.assertEqual(b0.sweep((0,0)), Bounds((-1.2,-1.25),(2.6,2.5)))
         
         
-        self.assertEquals(b1.sweep((1.3,0)), Bounds((1.0,1.0),(2.3,1.0)))
-        self.assertEquals(b2.sweep((6.6,0.8)), Bounds((-2.0,-2.0),(7.6,1.8)))
-        self.assertEquals(b3.sweep((-0.3,-0.6)), Bounds((-2.8,-3.1),(1.3,1.6)))
-        self.assertEquals(b4.sweep((21.0,-3)), Bounds((100.0,97.0),(41.0,23.0)))
-        self.assertEquals(b5.sweep((-21.0,3)), Bounds((84.0,105.0),(31.0,13.0)))
+        self.assertEqual(b1.sweep((1.3,0)), Bounds((1.0,1.0),(2.3,1.0)))
+        self.assertEqual(b2.sweep((6.6,0.8)), Bounds((-2.0,-2.0),(7.6,1.8)))
+        self.assertEqual(b3.sweep((-0.3,-0.6)), Bounds((-2.8,-3.1),(1.3,1.6)))
+        self.assertEqual(b4.sweep((21.0,-3)), Bounds((100.0,97.0),(41.0,23.0)))
+        self.assertEqual(b5.sweep((-21.0,3)), Bounds((84.0,105.0),(31.0,13.0)))
         
         
     def test_pad(self):
@@ -127,14 +137,14 @@ class Bounds_Test(unittest.TestCase):
         self.reset()
         
         #no padding
-        self.assertEquals(b0.pad(0), Bounds((-1.2,-1.25),Vector(2.6,2.5)))
+        self.assertEqual(b0.pad(0), Bounds((-1.2,-1.25),Vector(2.6,2.5)))
         
         
-        self.assertEquals(b1.pad(2.6), Bounds((-1.6,-1.6),(6.2,6.2)))
-        self.assertEquals(b2.pad(6.7), Bounds((-8.7,-8.7),(14.4,14.4)))
-        self.assertEquals(b3.pad(0.4), Bounds((-2.9,-2.9),(1.8,1.8)))
-        self.assertEquals(b4.pad(0.9), Bounds((99.1,99.1),(21.8,21.8)))
-        self.assertEquals(b5.pad(2), Bounds((103.0,103.0),(14.0,14.0)))
+        self.assertEqual(b1.pad(2.6), Bounds((-1.6,-1.6),(6.2,6.2)))
+        self.assertEqual(b2.pad(6.7), Bounds((-8.7,-8.7),(14.4,14.4)))
+        self.assertEqual(b3.pad(0.4), Bounds((-2.9,-2.9),(1.8,1.8)))
+        self.assertEqual(b4.pad(0.9), Bounds((99.1,99.1),(21.8,21.8)))
+        self.assertEqual(b5.pad(2), Bounds((103.0,103.0),(14.0,14.0)))
         
     def test_intersect(self):
         global b0, b00, b01, b02, b03, b1, b2, b3, b4, b5

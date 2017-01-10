@@ -2,10 +2,11 @@ from scipy.spatial import ConvexHull
 import random as rd
 import numpy as np
 from vector import *
+from bounds import * 
 
 def generate_polygon():
     scale = rd.uniform (50,300)
-    point_count = rd.randint(1,6)
+    point_count = rd.randint(3,6)
     points = np.random.rand(point_count,2)
     if len(points) > 2:
         vertices = ConvexHull(points).vertices
@@ -45,6 +46,25 @@ class Polygon:
         self.points = convex_polygon_points
         self.position = Vector(0,0)
         
+        left = self.points[0].x
+        bottom = self.points[0].y
+        right = self.points[0].x
+        top = self.points[0].y
+        
+        for point in self.points:
+            if point.x < left:
+                left = point.x
+            elif point.x > right:
+                right = point.x
+                
+            if point.y < bottom:
+                bottom = point.y
+            elif point.y > top:
+                top = point.y
+            
+        self.bounds = Bounds(Vector(left,bottom), Vector(right-left,top-bottom))
+        
+        
     def get_support(self, beam):
         support = self.points[0]
         along_factor = dot(beam,support) #along_factor is proportional to alongness
@@ -73,3 +93,22 @@ class Polygon:
                 fill =color,
                 outline = outline
             )
+            
+        canvas.create_rectangle(
+            self.get_bounds().left(),
+            self.get_bounds().bottom(),
+            self.get_bounds().right(),
+            self.get_bounds().top()
+        )
+            
+    def get_position(self):
+        return self.position
+    
+    def set_position(self, position):
+        self.position = position
+    
+    def get_bounds(self):
+        return self.bounds.offset(self.position)
+        
+    def get_skin(self):
+        return 1.0
