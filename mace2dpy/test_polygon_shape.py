@@ -4,9 +4,9 @@ import numpy as np
 from vector import *
 from bounds import * 
 
-def generate_polygon():
+def generate_polygon(min = 1 ,max = 6):
     scale = rd.uniform (50,300)
-    point_count = rd.randint(3,6)
+    point_count = rd.randint(min,max)
     points = np.random.rand(point_count,2)
     if len(points) > 2:
         vertices = ConvexHull(points).vertices
@@ -25,14 +25,13 @@ def generate_polygon():
             )
         )
         
-    # subtract mean to center 
+    # subtract mean to center polygon around 0,0
     mean = Vector(0,0)
     count = 0
     for vector in convex_polygon_points:
         mean += vector
         count += 1
     mean /= count
-    
     for vector_idx in range(len(convex_polygon_points)):
         convex_polygon_points[vector_idx] -= mean    
     
@@ -76,10 +75,11 @@ class Polygon:
     
     def draw(self,canvas,color,outline = ""):
         drawing_points = []
+        
         for point in self.points:
             drawing_points.append(list(point + self.position))
             
-            
+        #draw polygon
         if len(drawing_points) > 2:
             canvas.create_polygon(drawing_points,fill = color, outline = outline)
         elif len(drawing_points) == 2:
@@ -94,6 +94,7 @@ class Polygon:
                 outline = outline
             )
             
+        #draw bounds
         canvas.create_rectangle(
             self.get_bounds().left(),
             self.get_bounds().bottom(),

@@ -10,12 +10,15 @@ import numpy as np
 def reset(event = None):
     global canvas, root, w
     w = World()
+    w.set_pre_advance_callback(always_impact)
+    w.set_post_advance_callback(always_stop)
+    
     
 def create_body(event):
     global canvas, root, w
     b = Body()
-    b.position = Vector(event.x,event.y)
-    b.attach(Collider())
+    b.set_position(Vector(event.x,event.y))
+    b.add_fixture(Fixture(generate_polygon(3,7)))
     w.add_body(b)
     draw()
     

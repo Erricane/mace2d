@@ -51,7 +51,7 @@ def simplex_process(simplex):
 
 
     #simplex is line
-    if len(simplex) == 2:
+    elif len(simplex) == 2:
         direction10 = simplex[0] -simplex[1]
         to_origin = -simplex[1]
         
@@ -70,15 +70,17 @@ def simplex_process(simplex):
         return simplex, to_origin, False
              
     #simplex is a point
-    if len(simplex) == 1:
+    elif len(simplex) == 1:
         return simplex, -simplex[0], False
         
     raise ValueError("Simplex is too large") 
     
 
 def simplex_contain(simplex,support):
-    for vector in simplex:
-        if vector == support:
+    if simplex[0] == support:
+        return True
+    if len(simplex) == 2:
+        if simplex[1] == support:
             return True
     return False
 
@@ -116,3 +118,6 @@ def gjk(shape1, shape2):
             raise ValueError(str(simplex) + "\n" + str(old_support) + "\n" + str(support))
         
 
+def separation(shape1, shape2):
+    #from A to B
+    return gjk(shape2, shape1)
